@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { User } from "..";
+import { TokenBlackList, User } from "..";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
@@ -69,5 +69,17 @@ authRouter.post("/change-password", checkToken, async (req, res) => {
         else {
             res.status(404).send("User not found");
         }
+    }
+})
+
+authRouter.post("/logout", checkToken, async (req, res) => {
+    const decoded = jwt.decode(req.token!) as DecodeToken
+    const user = await User.findOne({ where: { id: decoded.id } });
+    if (user) {
+        await TokenBlackList.create({ token: req.token });
+        res.send("Logged out");
+    }
+    else {
+        res.status(404).send("User not found");
     }
 })

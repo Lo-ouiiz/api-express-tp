@@ -2,14 +2,13 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { Sequelize, DataTypes} from "sequelize";
 import { authRouter } from "./router/auth";
 
 import { OfficialGameModel } from "./model/OfficialGame";
 import { FreeGameModel } from "./model/FreeGame";
 import { UserModel} from "./model/User";
+import { TokenBlackListModel } from "./model/TokenBlackList";
 import { officialGameRouter } from "./router/officialGame";
 import { freeGameRouter } from "./router/freeGame";
 import { userRouter } from "./router/users";
@@ -22,6 +21,7 @@ export const sequelize = new Sequelize({
 export const OfficialGame = OfficialGameModel(sequelize);
 export const FreeGame = FreeGameModel(sequelize);
 export const User = UserModel(sequelize);
+export const TokenBlackList = TokenBlackListModel(sequelize);
 
 sequelize.sync();
 
