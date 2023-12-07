@@ -9,7 +9,7 @@ userRouter.get("/me", checkToken, async (req, res) => {
     const user = await User.findOne({ where: { id: decoded.id } });
     if (user) {
         delete user.dataValues.password;
-        res.send(user);
+        res.json(user);
     }
     else {
         res.status(404).send("User not found");

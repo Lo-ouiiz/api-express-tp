@@ -17,16 +17,22 @@ export async function checkToken(req: Request, res: Response, next: NextFunction
         res.status(401).send("No token provided");
     }
     else {
-        const token = fullToken.split(" ")[1];
-        const isBlacklisted = await TokenBlackList.findOne({ where: { token } });
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-        console.log(decoded);
-        if (decoded && !isBlacklisted) {
-            req.token = token;
-            next();
+
+        const [typeToken, token] = fullToken.split(" ");
+        if(typeToken !== "Bearer"){
+            res.status(401).send("Invalid token type");
         }
         else {
-            res.status(401).send("Invalid token");
+            const isBlacklisted = await TokenBlackList.findOne({ where: { token } });
+            const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+            console.log(decoded);
+            if (decoded && !isBlacklisted) {
+                req.token = token;
+                next();
+            }
+            else {
+                res.status(401).send("Invalid token");
+            }
         }
     }
 }

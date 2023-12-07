@@ -8,13 +8,16 @@ import { DecodeToken, checkToken } from "../middlewares/checkToken";
 export const authRouter = Router();
 
 authRouter.post("/local/register", async (req, res) => {
+    // const username = req.body.username;
+    // const password = req.body.password;
+    // const email = req.body.email;
+
     const { username, password, email } = req.body;
     const userWithEmail = await User.findOne({ where: { email } });
     if (userWithEmail) {
         res.status(400).send("Email already exists");
     }
     else {
-        console.log('salt', process.env.SALT_ROUNDS)
         const hashedPassword = await bcrypt.hash(password, parseInt(process.env.SALT_ROUNDS!));
         const newUser = await User.create({ username, password: hashedPassword, email });
         delete newUser.dataValues.password;
@@ -26,7 +29,7 @@ authRouter.post("/local", async (req, res) => {
     const { identifier, password } = req.body;
     const userWithEmail = await User.findOne({ where: { email: identifier } });
     if (!userWithEmail) {
-        res.status(400).send("Email does not exist");
+        res.status(400).send("Email or Password is incorrect");
     }
     else {
         const isPasswordCorrect = await bcrypt.compare(password, userWithEmail.dataValues.password);
@@ -39,7 +42,7 @@ authRouter.post("/local", async (req, res) => {
             });
         }
         else {
-            res.status(400).send("Password is incorrect");
+            res.status(400).send("Email or Password is incorrect");
         }
     }
 })
@@ -49,8 +52,8 @@ authRouter.post("/change-password", checkToken, async (req, res) => {
     if (passwordConfirmation !== password) {
         res.status(400).send("New passwords do not match");
     }
-    else if(passwordConfirmation.length < 8){
-        res.status(400).send("New password must be at least 8 characters long")
+    else if(passwordConfirmation.length < 6){
+        res.status(400).send("New password must be at least 6 characters long")
     }
     else {
         const decoded = jwt.decode(req.token!) as DecodeToken
@@ -59,7 +62,7 @@ authRouter.post("/change-password", checkToken, async (req, res) => {
             const isPasswordCorrect = await bcrypt.compare(currentPassword, user.dataValues.password);
             if (isPasswordCorrect) {
                 const hashedPassword = await bcrypt.hash(passwordConfirmation, parseInt(process.env.SALT_ROUNDS!));
-                await User.update({ password: hashedPassword }, { where: { id: decoded.id } });
+                await user.update({ password: hashedPassword });
                 res.send("Password changed");
             }
             else {

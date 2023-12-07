@@ -2,6 +2,7 @@ import { Router } from "express";
 import { FreeGame } from "..";
 
 export const freeGameRouter = Router();
+
 freeGameRouter.get("/", async (req, res) => {
     const officialGames = await FreeGame.findAll();
     res.json(officialGames);
@@ -10,7 +11,7 @@ freeGameRouter.get("/", async (req, res) => {
 freeGameRouter.get("/:id", async (req, res) => {
     const officialGame = await FreeGame.findOne({ where: { id: req.params.id } });
     if (officialGame) {
-        res.send("deleted");
+        res.json(officialGame);
     }
     else {
         res.status(404).send("Game not found");
