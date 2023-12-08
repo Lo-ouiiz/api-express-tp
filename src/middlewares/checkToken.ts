@@ -24,14 +24,21 @@ export async function checkToken(req: Request, res: Response, next: NextFunction
         }
         else {
             const isBlacklisted = await TokenBlackList.findOne({ where: { token } });
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-            console.log(decoded);
-            if (decoded && !isBlacklisted) {
-                req.token = token;
-                next();
+            try {
+                console.log('token', token)
+                const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+                console.log('decoded', decoded);
+                if (decoded && !isBlacklisted) {
+                    req.token = token;
+                    next();
+                }
+                else {
+                    res.status(401).send("Invalid token");
+                }
             }
-            else {
-                res.status(401).send("Invalid token");
+            catch(e){
+                console.log('invalid token on verify', e)
+                res.status(401).send("Invalid token on verify");
             }
         }
     }

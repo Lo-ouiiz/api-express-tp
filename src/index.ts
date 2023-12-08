@@ -24,8 +24,8 @@ export const FreeGame = FreeGameModel(sequelize);
 export const User = UserModel(sequelize);
 export const TokenBlackList = TokenBlackListModel(sequelize);
 
-sequelize.sync({ force: true });
-// sequelize.sync();
+// sequelize.sync({ force: true });
+sequelize.sync();
 
 const app = express();
 app.use(cors());
